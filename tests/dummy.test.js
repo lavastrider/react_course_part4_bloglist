@@ -73,7 +73,7 @@ describe('favoriteBlog', () => {
       url: 'ripbuzzfeedtchatgpt.com',
       likes: 75,
       __v: 0
-     } 
+     }
     ]
 
   test('of a blog that is the favorite is returned with title author and likes', () => {
@@ -83,8 +83,77 @@ describe('favoriteBlog', () => {
  })
  
  describe('mostBlogs', () => {
- //  test('of the author that has the most blogs written', () => {
+   const listBigger = [
+    {
+      _id: '5a422aa71b54a676234d17f8',
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+      likes: 5,
+      __v: 0
+     },
+    {
+      _id: '1234567890abcdefghijklmnop',
+      title: 'The Impact of ChatGPT on Buzzfeed Clickbait',
+      author: 'Not ChatGPT',
+      url: 'ripbuzzfeedtchatgpt.com',
+      likes: 75,
+      __v: 0
+     },
+     {
+      _id: '1234567890abcdefghijklmnopqrst',
+      title: 'Stop Using Me to Write Your Clickbait Articles',
+      author: 'Not ChatGPT',
+      url: 'ripbuzzfeedtchatgpt.com',
+      likes: 24,
+      __v: 0
+     }
+    ]
+
+//  test('of the author that has the most blogs written', () => {
 //    const result = listHelper.mostBlogs(listBlogs)
-//    expect(result).toEqual()
+//    expect(result).toEqual({author: 'NotChatGPT', blogs: 2})
 //  })
+})
+
+describe('mostLikes', () => {
+  const listBigger = [
+    {
+      _id: '5a422aa71b54a676234d17f8',
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+      likes: 5,
+      __v: 0
+     },
+    {
+      _id: '1234567890abcdefghijklmnop',
+      title: 'The Impact of ChatGPT on Buzzfeed Clickbait',
+      author: 'Not ChatGPT',
+      url: 'ripbuzzfeedtchatgpt.com',
+      likes: 75,
+      __v: 0
+     },
+     {
+      _id: '1234567890abcdefghijklmnopqrst',
+      title: 'Stop Using Me to Write Your Clickbait Articles',
+      author: 'Not ChatGPT',
+      url: 'ripbuzzfeedtchatgpt.com',
+      likes: 24,
+      __v: 0
+     },
+     {
+       _id: 'supercalifragilisticexpialadocious',
+       title: "Canonical string reduction",
+       author: "Edsger W. Dijkstra",
+       url: 'idk.com'
+       likes: 12
+       __v: 0
+     }
+    ]
+    
+//    test('of the author that has the most likes', () => {
+//      const result = listHelper.mostLikes(listBigger)
+//      expect(result).toEqual({author: 'Not ChatGPT', likes: '99'})
+//    })
 })

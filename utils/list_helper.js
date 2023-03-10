@@ -42,6 +42,42 @@ const favoriteBlog = (blogs) => {
   return blogHigh
 }
 
+const mostBlogs = (blogs) => {
+  //gets array of blogs
+  
+  const blogAuthArray = []
+  
+  const blogAuth = {
+    author: '',
+    blogs: 0
+   }
+   
+   const blogAuthHigh = {
+    author: '',
+    blogs: 0
+   }
+   
+   //go through blogs
+   //make object of blogauth, concat end with it
+   //if there is obj in list with author being same as author that was going to add, do blogs+=1
+   //go through list and find highest
+   //set blogAuthHigh to it   
+  
+  return blogAuthHigh
+
+}
+
+const mostLikes = (blogs) => {
+  
+  const blogAuthLikes = {
+    author: '',
+    likes: 0
+  }
+  
+  
+  return blogAuthLikes
+}
+
 module.exports = {
   dummy,
   totalLikes,
