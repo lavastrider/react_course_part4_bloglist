@@ -8,7 +8,7 @@ if (process.argv.length<3) {
 const password = process.argv[2]
 const blogTitle = process.argv[3]
 const blogAuthor = process.argv[4]
-const blogURL = process.argv[5] 
+const blogURL = process.argv[5]
 
 const url = `mongodb+srv://magically:${password}@blogs.kxctwgf.mongodb.net/?retryWrites=true&w=majority`
 
@@ -22,10 +22,10 @@ mongoose.connect(url)
   })
 
 const blogSchema = new mongoose.Schema({
-	title: String,
-	author: String,
-	url: String,
-	likes: Number
+  title: String,
+  author: String,
+  url: String,
+  likes: Number
 })
 
 //console.log(testing, 'is testing')

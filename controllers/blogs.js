@@ -2,10 +2,10 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
 blogsRouter.get('/', (request, response) => {
-	Blog.find({})
-		.then((diaries) => {
-			response.json(diaries)
-		})
+  Blog.find({})
+    .then((diaries) => {
+      response.json(diaries)
+    })
 })
 
 //blogsRouter.get('/api/blogs/:id', (request, response, next) => {
@@ -21,20 +21,20 @@ blogsRouter.get('/', (request, response) => {
 //})
 
 blogsRouter.post('/', (request, response, next) => {
-	const body = request.body
-	
-	const blog = new Blog({
-		title: body.title,
-		author: body.author,
-		url: body.url,
-		likes: 0
-	})
-	
-	blog.save()
-		.then((addedBlog) => {
-			response.status(201).json(addedBlog)
-		})
-		.catch(error => next(error))
+  const body = request.body
+
+  const blog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: 0
+  })
+
+  blog.save()
+    .then((addedBlog) => {
+      response.status(201).json(addedBlog)
+    })
+    .catch(error => next(error))
 })
 
 //blogRouter.delete('/api/blogs/:id', (request, response, next) => {
