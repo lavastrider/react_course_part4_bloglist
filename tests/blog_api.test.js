@@ -5,11 +5,13 @@ const config = require('../utils/config')
 const Blog = require('../models/blog')
 const api = supertest(app)
 const helper = require('./test_helper')
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
 
-beforeEach( async()=>{
+beforeEach( async() => {
   await mongoose.connect(config.MONGODB_URI)
   await Blog.deleteMany({})
-  
+
   const blogObjects = helper.initialBlogs.map((blog) => new Blog(blog))
   const promiseArray = blogObjects.map((diary) => diary.save())
   await Promise.all(promiseArray)
@@ -52,9 +54,9 @@ describe('tests that were written as practice through the course', () => {
 
   test('a valid blog can be added.practice', async () => {
     const newBlog = {
-      title: "Close Encounters of the Third Kind",
-      author: "Roswell",
-      url: "aliensarereal.com",
+      title: 'Close Encounters of the Third Kind',
+      author: 'Roswell',
+      url: 'aliensarereal.com',
       likes: 34
     }
 
@@ -63,7 +65,7 @@ describe('tests that were written as practice through the course', () => {
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
-    
+
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
@@ -108,21 +110,73 @@ describe('tests that were written as practice through the course', () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
-  	await api
-	    .delete(`/api/blogs/${blogToDelete.id}`)
-	    .expect(204)
-	
-	  const blogsAtEnd = await helper.blogsInDb()
-	
-	  expect(blogsAtEnd).toHaveLength(
-	    helper.initialBlogs.length - 1
-	  )
-	
-	  const title = blogsAtEnd.map((response) => response.content)
-	
-	  expect(title).not.toContain(blogToDelete.title)
-	})
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
 
+    const blogsAtEnd = await helper.blogsInDb()
+
+    expect(blogsAtEnd).toHaveLength(
+      helper.initialBlogs.length - 1
+    )
+
+    const title = blogsAtEnd.map((response) => response.content)
+    expect(title).not.toContain(blogToDelete.title)
+  })
+})
+
+describe('when there is initially one user in db practice', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+
+    await user.save()
+  })
+
+  test('creation succeeds with a fresh username', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'mluukkai',
+      name: 'Matti Luukkainen',
+      password: 'salainen',
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+
+    const usernames = usersAtEnd.map(u => u.username)
+    expect(usernames).toContain(newUser.username)
+  })
+  
+  test('creation fails with proper statuscode and message if username already taken', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'root',
+      name: 'Superuser',
+      password: 'salainen',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('expected `username` to be unique')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toEqual(usersAtStart)
+  })
 })
 
 describe ('tests that are written for the exercise', () => {
@@ -130,20 +184,20 @@ describe ('tests that are written for the exercise', () => {
     const response = await api.get('/api/blogs')
     expect(response.body).toHaveLength(helper.initialBlogs.length)
   })
-  
+
   test('verifies that the unique identifier is called id and not _id', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToView = blogsAtStart[0]
     expect(blogToView.id).toBeDefined()
   })
-  
+
   test('verifies that if likes missing from request, likes will default to zero', async () => {
     const newBlog = {
-      title: "The Biography of Smitty Werbermenjensson",
-      author: "Mr. Krabs",
-      url: "hewasnumberone.com"
+      title: 'The Biography of Smitty Werbermenjensson',
+      author: 'Mr. Krabs',
+      url: 'hewasnumberone.com'
     }
-    
+
     await api
       .post('/api/blogs')
       .send(newBlog)
@@ -151,17 +205,17 @@ describe ('tests that are written for the exercise', () => {
 
     //console.log(newBlog, 'is newblog')
     //console.log(newBlog.likes, 'is likes')
-    
+
     const blogsAtEnd = await helper.blogsInDb()
     const likes = blogsAtEnd.map((response) => response.likes)
     expect(likes).toHaveLength(helper.initialBlogs.length+1)
     expect(likes[likes.length-1]).toEqual(0)
   })
-  
+
   test('blog without title is not added', async () => {
     const newBlog = {
-      author: "Sandy",
-      url: "treedome.wordpress.com",
+      author: 'Sandy',
+      url: 'treedome.wordpress.com',
       likes: 3
     }
 
@@ -173,11 +227,11 @@ describe ('tests that are written for the exercise', () => {
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
   })
-  
+
   test('blog without url is not added', async () => {
     const newBlog = {
-      title: "Doctor Professor Patrick",
-      author: "See Title",
+      title: 'Doctor Professor Patrick',
+      author: 'See Title',
       likes: 4
     }
 
@@ -189,12 +243,12 @@ describe ('tests that are written for the exercise', () => {
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
   })
-  
+
   test('a valid blog can be added and is verified to save correctly', async () => {
     const newBlog = {
-      title: "Close Encounters of the Third Kind",
-      author: "Roswell",
-      url: "aliensarereal.com",
+      title: 'Close Encounters of the Third Kind',
+      author: 'Roswell',
+      url: 'aliensarereal.com',
       likes: 34
     }
 
@@ -203,61 +257,61 @@ describe ('tests that are written for the exercise', () => {
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
-    
+
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length+1)
-    
+
     console.log(blogsAtEnd[blogsAtEnd.length-1], 'is blogs at end at last index')
     expect(blogsAtEnd[blogsAtEnd.length-1].title).toEqual(newBlog.title)
     expect(blogsAtEnd[blogsAtEnd.length-1].author).toEqual(newBlog.author)
     expect(blogsAtEnd[blogsAtEnd.length-1].url).toEqual(newBlog.url)
     expect(blogsAtEnd[blogsAtEnd.length-1].likes).toEqual(newBlog.likes)
   })
-  
+
   test('a blogs info can be deleted', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
-  	await api
-	    .delete(`/api/blogs/${blogToDelete.id}`)
-	    .expect(204)
-	
-	  const blogsAtEnd = await helper.blogsInDb()
-	  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length-1)
-	
-	  const title = blogsAtEnd.map((response) => response.title)
-	  expect(title).not.toContain(blogToDelete.title)
-	})
-  
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length-1)
+
+    const title = blogsAtEnd.map((response) => response.title)
+    expect(title).not.toContain(blogToDelete.title)
+  })
+
   test('a blogs likes can be updated', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToUpdate = blogsAtStart[0]
-   
+
     const updatedBlog = {
-      title: "SMH My Head",
-      author: "Jordan Maron",
-      url: "captainsparklez.com",
+      title: 'SMH My Head',
+      author: 'Jordan Maron',
+      url: 'captainsparklez.com',
       likes: 4
     }
-    
+
     await api
       .patch(`/api/blogs/${blogToUpdate.id}`)
       .send(updatedBlog)
       .expect(201)
-    
+
     const blogsAtEnd = await helper.blogsInDb()
     const updatedLikes = blogsAtEnd.map((response) => response.likes)
     expect(updatedLikes[updatedLikes.length-1]).toEqual(4)
-    
+
     //this test can be modified to also check for updated title, author, and url
     //would only need to create an updatedTitle, updatedAuthor, etc
     //and expect the item in the last index to equal that value
   })
-  
+
 })
 
 afterEach( async () => {
-  await mongoose.connection.close();
+  await mongoose.connection.close()
 })
 
 afterAll( async () => {
