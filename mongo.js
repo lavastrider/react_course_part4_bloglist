@@ -11,6 +11,7 @@ const blogAuthor = process.argv[4]
 const blogURL = process.argv[5]
 
 const url = `mongodb+srv://magically:${password}@blogs.kxctwgf.mongodb.net/?retryWrites=true&w=majority`
+//const url = `mongodb+srv://magically:${password}@blogs.kxctwgf.mongodb.net/testBlog?retryWrites=true&w=majority`
 
 mongoose.set('strictQuery',false)
 mongoose.connect(url)

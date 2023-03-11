@@ -83,7 +83,7 @@ describe('favoriteBlog', () => {
  })
  
  describe('mostBlogs', () => {
-   const listBigger = [
+   const listBlogs = [
     {
       _id: '5a422aa71b54a676234d17f8',
       title: 'Go To Statement Considered Harmful',
@@ -110,10 +110,10 @@ describe('favoriteBlog', () => {
      }
     ]
 
-//  test('of the author that has the most blogs written', () => {
-//    const result = listHelper.mostBlogs(listBlogs)
-//    expect(result).toEqual({author: 'NotChatGPT', blogs: 2})
-//  })
+  test('of the author that has the most blogs written', () => {
+    const result = listHelper.mostBlogs(listBlogs)
+    expect(result).toEqual({author: 'Not ChatGPT', blogs: 2})
+  })
 })
 
 describe('mostLikes', () => {
@@ -144,16 +144,16 @@ describe('mostLikes', () => {
      },
      {
        _id: 'supercalifragilisticexpialadocious',
-       title: "Canonical string reduction",
-       author: "Edsger W. Dijkstra",
-       url: 'idk.com'
-       likes: 12
+       title: 'Canonical string reduction',
+       author: 'Edsger W. Dijkstra',
+       url: 'idk.com',
+       likes: 12,
        __v: 0
      }
     ]
     
-//    test('of the author that has the most likes', () => {
-//      const result = listHelper.mostLikes(listBigger)
-//      expect(result).toEqual({author: 'Not ChatGPT', likes: '99'})
-//    })
+    test('of the author that has the most likes', () => {
+      const result = listHelper.mostLikes(listBigger)
+      expect(result).toEqual({author: 'Not ChatGPT', likes: 99})
+    })
 })
