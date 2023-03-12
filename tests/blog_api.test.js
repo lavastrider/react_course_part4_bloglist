@@ -249,7 +249,8 @@ describe ('tests that are written for the exercise', () => {
       title: 'Close Encounters of the Third Kind',
       author: 'Roswell',
       url: 'aliensarereal.com',
-      likes: 34
+      likes: 34,
+      user: '640d06830c19f12cf03c95b0'
     }
 
     await api
@@ -309,6 +310,110 @@ describe ('tests that are written for the exercise', () => {
   })
 
 })
+
+describe('tests that require user login', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('testing123', 10)
+    const user = new User({ username: 'ajohnson', passwordHash })
+
+    await user.save()
+  })
+  
+  test('no non unique users created and correct error code and message shown', async () => {
+    const usersAtStart = await helper.usersInDb()
+    
+    //this is an improper user because there is someone with that username already
+    const newUser = {
+      username: 'ajohnson',
+      name: 'Matti Luukkainen',
+      password: 'salainen',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('expected `username` to be unique')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+  
+  test('no invalid user created because of username length and correct error code and message shown', async () => {
+    const usersAtStart = await helper.usersInDb()
+    
+    //this is an improper user because the username is too short
+    const newUser = {
+      username: 'ty',
+      name: 'Matti Luukkainen',
+      password: 'salainen',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Must be at least 3 characters')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)  
+  })
+  
+  test('no invalid user created because of password length and correct error code and message shown', async () => {
+    const usersAtStart = await helper.usersInDb()
+    
+    //this is an improper user because the password is too short
+    const newUser = {
+      username: 'tyedyed',
+      name: 'Matti Luukkainen',
+      password: 'sa',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Must be at least 3 characters')
+    
+    //getting 401
+    //maybe because it goes wrong user/pass instead of not created
+    //but why? am posting to users and not login
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+  
+  test('adding a blog fails with 401 if no token provided', async () => {
+    //adding a blog is done to the site /api/blogs
+    
+   const newBlog = {
+      title: "There Are Hot Single Sandwiches In Your Area!",
+      author: "Not A Scam",
+      url: "hotsinglesinyourarea.com",
+      likes: 24
+  }
+    
+    const result = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+      .expect('Content=Type', /application\/json/)
+      
+    expect(result.body.error).toContain('invalid token')
+    
+    //getting 400 bad request
+  })
+
+})
+
 
 afterEach( async () => {
   await mongoose.connection.close()
