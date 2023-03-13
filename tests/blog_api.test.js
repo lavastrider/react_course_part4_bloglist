@@ -395,7 +395,7 @@ describe('tests that require user login', () => {
     //adding a blog is done to the site /api/blogs
     
    const newBlog = {
-      title: "There Are Hot Single Sandwiches In Your Area!",
+      title: "There Are Hot And Ready Single Sandwiches In Your Area!",
       author: "Not A Scam",
       url: "hotsinglesinyourarea.com",
       likes: 24

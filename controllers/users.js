@@ -18,7 +18,7 @@ usersRouter.post('/', async (request, response) => {
       const savedUser = await user.save()
       response.status(201).json(savedUser)    
     } else {
-      response.status(401).json({ error: 'User validation failed: password: Must be at least 3 characters' })  
+      response.status(400).json({ error: 'User validation failed: password: Must be at least 3 characters' })  
     
     } 
 })
