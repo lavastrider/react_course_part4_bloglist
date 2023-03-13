@@ -17,6 +17,9 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.get('/:id', async (request, response, next) => {
   const blog = await Blog.findById(request.params.id)
+  //console.log(request.params, 'is request params')
+  //console.log(request.params.id, 'is request params id which should be same id as in url')
+  
   if (blog) {
     response.json(blog)
   }
@@ -50,6 +53,46 @@ blogsRouter.post('/', async (request, response) => {
   await user.save()
   
   response.json(addedBlog)
+})
+
+blogsRouter.delete('/:id', async (request, response, next) => {
+  //blog can only be deleted by user who added the blog
+  //aka only possible if request.token is same as blog's creator
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  //console.log(decodedToken, 'is decoded token')
+  //console.log(decodedToken.id, 'is decoded token id')
+
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
+  //console.log(user, 'is user')
+  const userID = user._id.toString()
+  //console.log(userID, 'is userID')
+  
+  const placeholderDueToPostmanIssue = '640d13e5ebcb7a2bb117dce6'
+
+  //blog that the url points to, which is the one that is to be deleted
+  //const blogToDelete = await Blog.findById(request.params.id)
+  const blogToDelete = await Blog.findById(placeholderDueToPostmanIssue)
+  console.log(blogToDelete, 'is blog to delete')
+  //console.log(request.params, 'is request params')
+  //console.log(request.params.id, 'is request params id which should be same id as in url')
+
+  //if user.id equals user.id in blog with id of id
+  if (blogToDelete.user.toString() === userID) {
+    //the userID from token is the same as the user id in the blog
+    console.log('we are gonna delete the blog')
+    //await Blog.findByIdAndRemove(request.params.id)
+    await Blog.findByIdAndRemove(placeholderDueToPostmanIssue)
+    response.status(204).end()
+  } else {
+    return response.status(401).json({ error: 'User does not have permission to perform this action' })
+  }
+
+  //if attempted without token or by invalid user, return 401
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
