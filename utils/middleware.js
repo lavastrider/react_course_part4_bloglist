@@ -9,11 +9,17 @@ const requestLogger = (request, response, next) => {
 }
 
 const tokenExtractor = (request, response, next) => {
+
+  //middleware should take the token from auth header
+  //and place in token field of request object
+  
   const authorization = request.get('authorization')
   if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
+    //console.log(request.get('authorization'), 'is request.authorization')
+    request.token = authorization.replace('Bearer ', '')
+    //console.log(request.token, 'is request token')
+    next()
   }
-  return null
   next()
 } 
 

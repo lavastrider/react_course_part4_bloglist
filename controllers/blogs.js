@@ -53,8 +53,12 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
+  //blog can only be deleted by user who added the blog
+  //aka only possible if request.token is same as blog's creator
   await Blog.findByIdAndRemove(request.params.id)
   response.status(204).end()
+  
+  //if attempted without token or by invalid user, return 401
 })
 
 blogsRouter.patch('/:id', async (request, response, next) => {
