@@ -3,7 +3,7 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const middle = require('../utils/middleware')
-
+const logger = require('../utils/logger')
 
 blogsRouter.get('/', async (request, response) => {
   const diaries = await Blog.find({}).populate('user', {username: 1, personName: 1})
@@ -29,16 +29,10 @@ blogsRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/api/blogs', middle.userExtractor, async (request, response) => {
-
+blogsRouter.post('/', middle.userExtractor, async (request, response) => {
   const body = request.body
   const user = await User.findById(request.user)
-  //console.log(typeof request.user, 'is type of request user') <- says request.user is string
-  //console.log(request.user, 'is request user')
-  //console.log(user, 'is user after find by id')
-  //console.log(user.id, 'is user id after find by id')
-  console.log('we are in the post in blogs')
-  console.log(request, 'is request')
+  logger.info('we are in post')
   
   const blog = new Blog({
       title: body.title,
@@ -53,10 +47,9 @@ blogsRouter.post('/api/blogs', middle.userExtractor, async (request, response) =
   await user.save()
   
   response.json(addedBlog)  
-  
 })
 
-blogsRouter.delete('/:id', middle.userExtractor, async (request, response, next) => {
+blogsRouter.delete('/:id', async (request, response, next) => {
   //blog can only be deleted by user who added the blog
   //aka only possible if request.token is same as blog's creator
 
@@ -85,15 +78,6 @@ blogsRouter.delete('/:id', middle.userExtractor, async (request, response, next)
     return response.status(401).json({ error: 'User does not have permission to perform this action' })
   }
 
-  //if attempted without token or by invalid user, return 401
-})
-
-blogsRouter.delete('/:id', async (request, response, next) => {
-  //blog can only be deleted by user who added the blog
-  //aka only possible if request.token is same as blog's creator
-  await Blog.findByIdAndRemove(request.params.id)
-  response.status(204).end()
-  
   //if attempted without token or by invalid user, return 401
 })
 

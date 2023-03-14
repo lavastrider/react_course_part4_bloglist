@@ -7,6 +7,7 @@ const api = supertest(app)
 const helper = require('./test_helper')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
+const logger = require('../utils/logger')
 
 
 beforeEach( async() => {
@@ -170,20 +171,16 @@ describe('tests that require user login', () => {
       url: 'hewasnumberone.com'
     }
     
-    //.set('Authorization', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFqb2huc29uIiwiaWQiOiI2NDBkMWU4OWNhNjIwM2RlNjY2M2E3MmYiLCJpYXQiOjE2Nzg3NDM3NjcsImV4cCI6MTY3ODc0NzM2N30.GgJF20QEVL8B4OduhWIXdq9h5_ZzMMGWu1eETMgeobo')
-    //.auth('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFqb2huc29uIiwiaWQiOiI2NDBkMWU4OWNhNjIwM2RlNjY2M2E3MmYiLCJpYXQiOjE2Nzg3NDM3NjcsImV4cCI6MTY3ODc0NzM2N30.GgJF20QEVL8B4OduhWIXdq9h5_ZzMMGWu1eETMgeobo', {type:'bearer'})
-    //.set({ authorization: `Bearer ${token}`})
-    //const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFqb2huc29uIiwiaWQiOiI2NDBkMWU4OWNhNjIwM2RlNjY2M2E3MmYiLCJpYXQiOjE2Nzg3NDM3NjcsImV4cCI6MTY3ODc0NzM2N30.GgJF20QEVL8B4OduhWIXdq9h5_ZzMMGWu1eETMgeobo'
-    //  .expect( ({ headers }) => console.log(headers, 'is headers after auth'))
-    //.send(newBlog)
     const token = response.body.token
 
     const result = await api
       .post('/api/blogs')
       .set({ authorization: `Bearer ${token}`})	
-      .send(newBlog)  
+      .send(newBlog)
+      .expect(201)
+      .catch((error) => console.log('we have an error'))  
       
-    console.log(result, 'is result in test')
+    //console.log(result, 'is result in test')
       
     //.expect(201)
     //console.log(newBlog, 'is newblog')

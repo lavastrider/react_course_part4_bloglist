@@ -31,12 +31,13 @@ const userExtractor = (request, response, next) => {
   
   const user = request.get('token')
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  
+  //console.log('we are in user extract')
 
   if (!decodedToken.id) {
     return response.status(401).send({ error: 'token invalid' })
   } else {
-    request.user = decodedToken.id
-    next()
+    return request.user = decodedToken.id
   }
   next()
 
