@@ -32,7 +32,7 @@ blogsRouter.get('/:id', async (request, response, next) => {
 blogsRouter.post('/', middle.userExtractor, async (request, response) => {
   const body = request.body
   const user = await User.findById(request.user)
-  logger.info('we are in post')
+  //console.log('we are in post')
   
   const blog = new Blog({
       title: body.title,
@@ -46,33 +46,28 @@ blogsRouter.post('/', middle.userExtractor, async (request, response) => {
   user.blogs = user.blogs.concat(addedBlog._id)
   await user.save()
   
-  response.json(addedBlog)  
+  response.status(201).json(addedBlog)
+  
 })
-
-blogsRouter.delete('/:id', async (request, response, next) => {
+	
+blogsRouter.delete('/:id', middle.userExtractor, async (request, response, next) => {
   //blog can only be deleted by user who added the blog
   //aka only possible if request.token is same as blog's creator
 
   const user = await User.findById(request.user)
   //console.log(user, 'is user')
-  const userID = user._id.toString()
+  const userID = user.id.toString()
   //console.log(userID, 'is userID')
-  
-  const placeholderDueToPostmanIssue = '640d13e5ebcb7a2bb117dce6'
 
   //blog that the url points to, which is the one that is to be deleted
-  //const blogToDelete = await Blog.findById(request.params.id)
-  const blogToDelete = await Blog.findById(placeholderDueToPostmanIssue)
-  console.log(blogToDelete, 'is blog to delete')
-  //console.log(request.params, 'is request params')
-  //console.log(request.params.id, 'is request params id which should be same id as in url')
+  const blogToDelete = await Blog.findById(request.params.id)
+  //console.log(blogToDelete, 'is blog to delete')
 
   //if user.id equals user.id in blog with id of id
   if (blogToDelete.user.toString() === userID) {
     //the userID from token is the same as the user id in the blog
-    console.log('we are gonna delete the blog')
-    //await Blog.findByIdAndRemove(request.params.id)
-    await Blog.findByIdAndRemove(placeholderDueToPostmanIssue)
+    //console.log('we are gonna delete the blog')
+    await Blog.findByIdAndRemove(request.params.id)
     response.status(204).end()
   } else {
     return response.status(401).json({ error: 'User does not have permission to perform this action' })

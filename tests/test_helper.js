@@ -6,7 +6,8 @@ const initialBlogs = [
     title: 'SMH My Head',
     author: 'Jordan Maron',
     url: 'captainsparklez.com',
-    likes: 2
+    likes: 2,
+    user: '640ff8fd772f7102bbf3bed5'
   },
   {
     title: 'HTML In Five Easy Steps',

@@ -61,6 +61,7 @@ describe ('tests that are written for the exercise', () => {
 
 describe('tests that require user login', () => {
   beforeAll(async () => {
+    await mongoose.connect(config.MONGODB_URI)
     await User.deleteMany({})
 
     const passwordHash = await bcrypt.hash('testing123', 10)
@@ -74,7 +75,7 @@ describe('tests that require user login', () => {
     
     //this is an improper user because there is someone with that username already
     const newUser = {
-      username: 'ajohnson',
+      username: 'athomas',
       name: 'Matti Luukkainen',
       password: 'salainen',
     }
@@ -145,7 +146,6 @@ describe('tests that require user login', () => {
       likes: 24
    }
    
-   //console.log(newBlog, 'is newblog in test')
     
     const result = await api
       .post('/api/blogs')
@@ -153,17 +153,13 @@ describe('tests that require user login', () => {
       .expect(401)
       .expect('Content-Type', /application\/json/)
       
-    //console.log(result, 'is result')
       
     expect(result.body.error).toContain('jwt must be provided')
   })
   
   test('verifies that if likes missing from request, likes will default to zero', async () => {
     const userPlain = {username: 'athomas', password: 'testing123'}
-
     const response = await api.post('/api/login').send(userPlain)
-    //console.log(response, 'is response')
-    //console.log(response.body.token, 'is response body token')
     
     const newBlog = {
       title: 'The Biography of Smitty Werbermenjensson',
@@ -178,21 +174,18 @@ describe('tests that require user login', () => {
       .set({ authorization: `Bearer ${token}`})	
       .send(newBlog)
       .expect(201)
-      .catch((error) => console.log('we have an error'))  
-      
-    //console.log(result, 'is result in test')
-      
-    //.expect(201)
-    //console.log(newBlog, 'is newblog')
-    //console.log(newBlog.likes, 'is likes')
 
-    //const blogsAtEnd = await helper.blogsInDb()
-    //const likes = blogsAtEnd.map((response) => response.likes)
-    //expect(likes).toHaveLength(helper.initialBlogs.length+1)
-    //expect(likes[likes.length-1]).toEqual(0)
+    const blogsAtEnd = await helper.blogsInDb()
+    const likes = blogsAtEnd.map((response) => response.likes)
+    expect(likes).toHaveLength(helper.initialBlogs.length+1)
+    expect(likes[likes.length-1]).toEqual(0)
   })
 
   test('blog without title is not added', async () => {
+    const userPlain = {username: 'athomas', password: 'testing123'}
+    const response = await api.post('/api/login').send(userPlain)
+    const token = response.body.token
+    
     const newBlog = {
       author: 'Sandy',
       url: 'treedome.wordpress.com',
@@ -201,6 +194,7 @@ describe('tests that require user login', () => {
 
     await api
       .post('/api/blogs')
+      .set({ authorization: `Bearer ${token}`})
       .send(newBlog)
       .expect(400)
 
@@ -209,6 +203,10 @@ describe('tests that require user login', () => {
   })
 
   test('blog without url is not added', async () => {
+    const userPlain = {username: 'athomas', password: 'testing123'}
+    const response = await api.post('/api/login').send(userPlain)
+    const token = response.body.token
+    
     const newBlog = {
       title: 'Doctor Professor Patrick',
       author: 'See Title',
@@ -217,6 +215,7 @@ describe('tests that require user login', () => {
 
     await api
       .post('/api/blogs')
+      .set({ authorization: `Bearer ${token}`})
       .send(newBlog)
       .expect(400)
 
@@ -225,6 +224,10 @@ describe('tests that require user login', () => {
   })
 
   test('a valid blog can be added and is verified to save correctly', async () => {
+    const userPlain = {username: 'athomas', password: 'testing123'}
+    const response = await api.post('/api/login').send(userPlain)
+    const token = response.body.token
+    
     const newBlog = {
       title: 'Close Encounters of the Third Kind',
       author: 'Roswell',
@@ -234,6 +237,7 @@ describe('tests that require user login', () => {
 
     await api
       .post('/api/blogs')
+      .set({ authorization: `Bearer ${token}`})
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -241,26 +245,60 @@ describe('tests that require user login', () => {
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length+1)
 
-    console.log(blogsAtEnd[blogsAtEnd.length-1], 'is blogs at end at last index')
+    //console.log(blogsAtEnd[blogsAtEnd.length-1], 'is blogs at end at last index')
     expect(blogsAtEnd[blogsAtEnd.length-1].title).toEqual(newBlog.title)
     expect(blogsAtEnd[blogsAtEnd.length-1].author).toEqual(newBlog.author)
     expect(blogsAtEnd[blogsAtEnd.length-1].url).toEqual(newBlog.url)
     expect(blogsAtEnd[blogsAtEnd.length-1].likes).toEqual(newBlog.likes)
   })
 
-  test('a blogs info can be deleted', async () => {
+  test('a blogs info can be deleted with token', async () => {
+    const userPlain = {username: 'athomas', password: 'testing123'}
+    const response = await api.post('/api/login').send(userPlain)
+    const token = response.body.token
+    
+    const newBlog = {
+      title: 'How to Live in an Underwater Tree Dome',
+      author: 'Sandy Cheeks',
+      url: 'texasisastateofmind.com',
+      likes: 35
+    }
+
+    await api
+      .post('/api/blogs')
+      .set({ authorization: `Bearer ${token}`})
+      .send(newBlog)    
+    
     const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
+    const blogToDelete = blogsAtStart[blogsAtStart.length-1]
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set({ authorization: `Bearer ${token}`})
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length-1)
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
 
     const title = blogsAtEnd.map((response) => response.title)
     expect(title).not.toContain(blogToDelete.title)
+  })
+  
+  test('a blogs info cannot be deleted and returns 401 with no token', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    const result = await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(401)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+    const title = blogsAtEnd.map((response) => response.title)
+    expect(title).toContain(blogToDelete.title)
+    
+    expect(result.body.error).toContain('jwt must be provided')
   })
 
 })

@@ -19,7 +19,6 @@ const tokenExtractor = (request, response, next) => {
     //console.log(request.get('authorization'), 'is request.authorization')
     request.token = authorization.replace('Bearer ', '')
     //console.log(request.token, 'is request token')
-    next()
   }
   next()
 }
@@ -37,7 +36,7 @@ const userExtractor = (request, response, next) => {
   if (!decodedToken.id) {
     return response.status(401).send({ error: 'token invalid' })
   } else {
-    return request.user = decodedToken.id
+    request.user = decodedToken.id
   }
   next()
 
