@@ -2,11 +2,12 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
-
+const middle = require('../utils/middleware')
 
 
 blogsRouter.get('/', async (request, response) => {
   const diaries = await Blog.find({}).populate('user', {username: 1, personName: 1})
+  //console.log('this is msg in get / blogsrouter')
   
   if (diaries) {
     response.json(diaries)
@@ -28,46 +29,38 @@ blogsRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/', async (request, response) => {
-  const body = request.body
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  console.log(decodedToken, 'is decoded token')
-  
-  
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
-  //console.log(user, 'is user after find by id')
+blogsRouter.post('/api/blogs', middle.userExtractor, async (request, response) => {
 
+  const body = request.body
+  const user = await User.findById(request.user)
+  //console.log(typeof request.user, 'is type of request user') <- says request.user is string
+  //console.log(request.user, 'is request user')
+  //console.log(user, 'is user after find by id')
+  //console.log(user.id, 'is user id after find by id')
+  console.log('we are in the post in blogs')
+  console.log(request, 'is request')
+  
   const blog = new Blog({
       title: body.title,
       author: body.author,
       url: body.url,
       likes: body.likes,
       user: user.id
-  })
+    })
 
   const addedBlog = await blog.save()
   user.blogs = user.blogs.concat(addedBlog._id)
   await user.save()
   
-  response.json(addedBlog)
+  response.json(addedBlog)  
+  
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', middle.userExtractor, async (request, response, next) => {
   //blog can only be deleted by user who added the blog
   //aka only possible if request.token is same as blog's creator
 
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  //console.log(decodedToken, 'is decoded token')
-  //console.log(decodedToken.id, 'is decoded token id')
-
-
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
+  const user = await User.findById(request.user)
   //console.log(user, 'is user')
   const userID = user._id.toString()
   //console.log(userID, 'is userID')
