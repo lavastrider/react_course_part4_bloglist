@@ -76,18 +76,20 @@ blogsRouter.delete('/:id', middle.userExtractor, async (request, response, next)
   //if attempted without token or by invalid user, return 401
 })
 
-blogsRouter.patch('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response, next) => {
   const body = request.body
   
   const blog = new Blog({
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    _id: request.params.id,
+    user: body.user
   })
   
-  const updatedBlog = await blog.save()
-  await Blog.findByIdAndUpdate(request.params.id)
+  //const updatedBlog = await blog.save()
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog)
   response.status(201).json(updatedBlog)
 })
 
