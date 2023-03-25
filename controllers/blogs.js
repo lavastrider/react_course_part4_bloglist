@@ -34,12 +34,15 @@ blogsRouter.post('/', middle.userExtractor, async (request, response) => {
   const user = await User.findById(request.user)
   //console.log('we are in post')
   
+  //maybe add key-value for comments array, like how users have array for blogs
+  
   const blog = new Blog({
       title: body.title,
       author: body.author,
       url: body.url,
       likes: body.likes,
-      user: user.id
+      user: user.id,
+      comments: ''
     })
 
   const addedBlog = await blog.save()
@@ -85,7 +88,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
     url: body.url,
     likes: body.likes,
     _id: request.params.id,
-    user: body.user
+    user: body.user,
   })
   
   //const updatedBlog = await blog.save()
