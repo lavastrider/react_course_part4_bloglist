@@ -20,8 +20,8 @@ commentsRouter.get('/:id/comments', async (request, response) => {
 commentsRouter.post('/:id/comments', async (request, response) => {
   const body = request.body
   console.log(body, 'is body')
-  //const user = await User.findById(request.user)
-  //console.log('we are in post')
+  const blog = await Blog.findById(request.params.id)
+  console.log(blog, 'is blog in post')
   
   //maybe add key-value for comments array, like how users have array for blogs
   
@@ -30,6 +30,10 @@ commentsRouter.post('/:id/comments', async (request, response) => {
     })
 
   const addedCom = await comment.save()
+  //blog.comments = blog.comments.concat({id: addedCom._id, comment: addedCom._comment})
+  blog.comments = blog.comments.concat(addedCom._id)
+  //blog.comments = blog.comments.concat(addedCom.comment)
+  await blog.save()
   response.status(201).json(addedCom)
   
 })
