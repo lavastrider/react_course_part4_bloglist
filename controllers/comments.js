@@ -23,10 +23,9 @@ commentsRouter.post('/:id/comments', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   console.log(blog, 'is blog in post')
   
-  //maybe add key-value for comments array, like how users have array for blogs
-  
   const comment = new Comment({
-      comment: body.comment
+      comment: body.comment,
+      blog = blog.id
     })
 
   const addedCom = await comment.save()
@@ -39,6 +38,7 @@ commentsRouter.post('/:id/comments', async (request, response) => {
 })
 
 //keep this for ability to either like or edit comment
+//would req user attached to comment tho
 commentsRouter.put('/:id', async (request, response, next) => {
   const body = request.body
   
