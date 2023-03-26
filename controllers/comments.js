@@ -20,19 +20,19 @@ commentsRouter.get('/:id/comments', async (request, response) => {
 commentsRouter.post('/:id/comments', async (request, response) => {
   const body = request.body
   console.log(body, 'is body')
-  const blog = await Blog.findById(request.params.id)
-  console.log(blog, 'is blog in post')
+  const bloggies = await Blog.findById(request.params.id)
+  console.log(bloggies, 'is bloggies in post')
   
   const comment = new Comment({
       comment: body.comment,
-      blog = blog.id
+      blog: bloggies.id
     })
 
   const addedCom = await comment.save()
   //blog.comments = blog.comments.concat({id: addedCom._id, comment: addedCom._comment})
-  blog.comments = blog.comments.concat(addedCom._id)
+  bloggies.comments = bloggies.comments.concat(addedCom._id)
   //blog.comments = blog.comments.concat(addedCom.comment)
-  await blog.save()
+  await bloggies.save()
   response.status(201).json(addedCom)
   
 })
