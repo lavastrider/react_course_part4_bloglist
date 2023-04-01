@@ -6,7 +6,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    minLength: [3, 'Must be at least 3 characters']
+    minLength: [3, 'Must be at least 3 characters'],
+    validate: {
+      validator: function (uN) {
+        return /^\w+$/.test(uN)
+      },
+      message: 'Username contains characters that are not allowed'
+    }
   },
   personName: {
     type: String,
@@ -37,5 +43,4 @@ const User = mongoose.model('User', userSchema)
 module.exports = User
 
 //optional exercises:
-////username only consists of permitted characters
 ////password is strong enough
