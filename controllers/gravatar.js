@@ -8,8 +8,7 @@ const axios = require('axios')
 
 gravRouter.get('/', async (request, response) => {
   //this is the function to call gravatar api and then store info at /api/grav
-  
-  
+
   const userData = await User.find({})
   //console.log(userData, 'is userdata in gravrouter')
   
@@ -41,39 +40,6 @@ gravRouter.get('/', async (request, response) => {
   } else {
     response.status(404).end
   } 
-})
-
-gravRouter.get('/:id', async (request, response) => {
-  //this
-  console.log(response, 'is response')
-  //const posts = await Comment.find({}).populate('blog', {title: 1})
-  //console.log('this is msg in get / blogsrouter')
-  
-  //if (posts) {
-  //  response.json(posts)
-  //} else {
-  //  response.status(404).end()
-  //}
-})
-
-gravRouter.post('/:id/comments', async (request, response) => {
-  const body = request.body
-  console.log(body, 'is body')
-  const bloggies = await Blog.findById(request.params.id)
-  console.log(bloggies, 'is bloggies in post')
-  
-  const comment = new Comment({
-      comment: body.comment,
-      blog: bloggies.id
-    })
-
-  const addedCom = await comment.save()
-  //blog.comments = blog.comments.concat({id: addedCom._id, comment: addedCom._comment})
-  bloggies.comments = bloggies.comments.concat(addedCom._id)
-  //blog.comments = blog.comments.concat(addedCom.comment)
-  await bloggies.save()
-  response.status(201).json(addedCom)
-  
 })
 
 module.exports = gravRouter
