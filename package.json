@@ -7,7 +7,7 @@
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
-"start:test": "NODE_ENV=test node index.js"
+    "start:test": "NODE_ENV=test node index.js"
   },
   "author": "merms",
   "license": "MIT",
@@ -20,6 +20,7 @@
     "express-async-errors": "^3.1.1",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.21",
+    "md5": "^2.3.0",
     "mongoose": "^6.10.2",
     "mongoose-unique-validator": "^3.1.0",
     "morgan": "^1.10.0",
