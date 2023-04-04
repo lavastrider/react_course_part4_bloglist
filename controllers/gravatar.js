@@ -42,4 +42,10 @@ gravRouter.get('/', async (request, response) => {
   } 
 })
 
+gravRouter.get('/:id', async (request, response) => {
+  const userProf = await User.findById(request.params.id)
+  
+  //idea is to call single user profile via this, as that way no need to recreate api grav with every call
+})
+
 module.exports = gravRouter
